@@ -5,7 +5,7 @@ on:
     inputs:
       runner:
         type: string
-        default: "oracle-vm-4cpu-16gb-x86-64"
+        default: "ubuntu-latest"
         description: "Runner to use for the workflow"
       timeout-minutes:
         type: number
@@ -16,7 +16,7 @@ on:
     inputs:
       runner:
         type: string
-        default: "oracle-vm-4cpu-16gb-x86-64"
+        default: "ubuntu-latest"
       timeout-minutes:
         type: number
         default: 90
@@ -26,7 +26,7 @@ permissions: {}
 jobs:
   test:
     name: Quick Start Test
-    runs-on: ${{ inputs.runner || 'oracle-vm-4cpu-16gb-x86-64' }}
+    runs-on: ${{ inputs.runner || 'ubuntu-latest' }}
     timeout-minutes: ${{ fromJSON(inputs.timeout-minutes || '90') }}
 
     steps:
