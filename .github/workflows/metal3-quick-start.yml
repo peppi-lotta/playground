@@ -1,4 +1,4 @@
-name: E2E Test
+name: Metal3 Quick Start Test
 
 on:
   workflow_dispatch:
