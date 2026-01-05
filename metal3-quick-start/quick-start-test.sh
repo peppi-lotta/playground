@@ -14,7 +14,10 @@ ensure_env() {
     sudo apt-get install -y libvirt-dev pkg-config
 
     echo "Ensuring kubectl is installed and meets minimum version requirements..."
-    source "${QUICK_START_BASE}/ensure_kubectl.sh"
+    source "${QUICK_START_BASE}/ensure/ensure_kubectl.sh"
+
+    echo "Ensuring clusterctl is installed and meets minimum version requirements..."
+    source "${QUICK_START_BASE}/ensure/ensure_clusterctl.sh"
 }
 
 setup() {

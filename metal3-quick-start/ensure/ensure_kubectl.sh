@@ -28,6 +28,7 @@ verify_kubectl_version()
             echo "kubectl not found, installing"
             curl -LO "https://dl.k8s.io/release/${MINIMUM_KUBECTL_VERSION}/bin/linux/amd64/kubectl"
             sudo install kubectl "${USR_LOCAL_BIN}/kubectl"
+            rm kubectl
         else
             echo "Missing required binary in path: kubectl"
             return 2
