@@ -11,6 +11,7 @@ kubectl apply -k ${QUICK_START_BASE}/irso
 kubectl -n ironic-standalone-operator-system wait --for=condition=Available --timeout=300s deploy/ironic-standalone-operator-controller-manager
 
 # Now we can deploy Ironic and BMO
+kubectl create ns baremetal-operator-system
 # Apply Ironic with retry logic (up to 5 attempts with 10 second delays).
 # The IrSO webhook is not guaranteed to be ready when the IrSO deployment is,
 # so some retries may be needed.

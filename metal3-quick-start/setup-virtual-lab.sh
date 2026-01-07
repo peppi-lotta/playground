@@ -35,7 +35,7 @@ sudo iptables -I FORWARD -i metal3 -o kind -j ACCEPT
 # Start the sushy-emulator container that acts as BMC
 docker run --name sushy-tools --rm --network host -d \
   -v /var/run/libvirt:/var/run/libvirt \
-  -v "$(pwd)/sushy-emulator.conf:/etc/sushy/sushy-emulator.conf" \
+  -v "${QUICK_START_BASE}/sushy-emulator.conf:/etc/sushy/sushy-emulator.conf" \
   -e SUSHY_EMULATOR_CONFIG=/etc/sushy/sushy-emulator.conf \
   quay.io/metal3-io/sushy-tools:latest sushy-emulator
 
@@ -48,7 +48,7 @@ virt-install \
   --osinfo=ubuntu-lts-latest \
   --ram=4096 \
   --vcpus=2 \
-  --disk size=8 \
+  --disk size=25 \
   --boot uefi,hd,network \
   --import \
   --serial file,path="${SERIAL_LOG_PATH}" \

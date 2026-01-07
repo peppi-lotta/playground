@@ -11,7 +11,10 @@ export QUICK_START_BASE=${QUICK_START_BASE:="$(dirname -- "$(readlink -f "${BASH
 
 ensure_env() {
     sudo apt-get update
-    sudo apt-get install -y libvirt-dev pkg-config
+    sudo apt-get install -y libvirt-daemon-system qemu-kvm virt-manager libvirt-dev
+
+    echo "Ensuring go is installed and meets minimum version requirements..."
+    source "${QUICK_START_BASE}/ensure/ensure_go.sh"
 
     echo "Ensuring kubectl is installed and meets minimum version requirements..."
     source "${QUICK_START_BASE}/ensure/ensure_kubectl.sh"
@@ -63,8 +66,8 @@ scenario_2() {
     fi
 
     # Get kubeconfig for the workload cluster and install CNI
-    clusterctl get kubeconfig test-cluster > test-cluster-kubeconfig.yaml
-    kubectl --kubeconfig=test-cluster-kubeconfig.yaml apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.31.0/manifests/calico.yaml
+    clusterctl get kubeconfig test-cluster > ${QUICK_START_BASE}/test-cluster-kubeconfig.yaml
+    kubectl --kubeconfig=${QUICK_START_BASE}/test-cluster-kubeconfig.yaml apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.31.0/manifests/calico.yaml
 
     # Wait for the control plane machine to be ready
     if ! kubectl wait --for=condition=Ready --timeout=600s machine --all; then
