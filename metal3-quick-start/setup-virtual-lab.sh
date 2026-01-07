@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Define and start the baremetal-e2e network
-virsh -c qemu:///system net-define ${QUICK_START_BASE}/net.xml
+virsh -c qemu:///system net-define "${QUICK_START_BASE}/net.xml"
 virsh -c qemu:///system net-start baremetal-e2e
 
 # We need to create veth pair to connect the baremetal-e2e net (defined above)
@@ -48,7 +48,7 @@ virt-install \
   --osinfo=ubuntu-lts-latest \
   --ram=4096 \
   --vcpus=2 \
-  --disk size=25 \
+  --disk size=12 \
   --boot uefi,hd,network \
   --import \
   --serial file,path="${SERIAL_LOG_PATH}" \
@@ -57,6 +57,6 @@ virt-install \
   --xml "./devices/serial/log/@append=on" \
   --network network=baremetal-e2e,mac="00:60:2f:31:81:01" \
   --noautoconsole \
-  --print-xml > ${QUICK_START_BASE}/bmh-vm-01.xml
+  --print-xml > "${QUICK_START_BASE}/bmh-vm-01.xml"
 
-virsh -c qemu:///system define ${QUICK_START_BASE}/bmh-vm-01.xml
+virsh -c qemu:///system define "${QUICK_START_BASE}/bmh-vm-01.xml"

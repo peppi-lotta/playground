@@ -14,13 +14,13 @@ ensure_env() {
     sudo apt-get install -y libvirt-daemon-system qemu-kvm virt-manager libvirt-dev
 
     echo "Ensuring go is installed and meets minimum version requirements..."
-    source "${QUICK_START_BASE}/ensure/ensure_go.sh"
+    "${QUICK_START_BASE}/ensure/ensure_go.sh"
 
     echo "Ensuring kubectl is installed and meets minimum version requirements..."
-    source "${QUICK_START_BASE}/ensure/ensure_kubectl.sh"
+    "${QUICK_START_BASE}/ensure/ensure_kubectl.sh"
 
     echo "Ensuring clusterctl is installed and meets minimum version requirements..."
-    source "${QUICK_START_BASE}/ensure/ensure_clusterctl.sh"
+    "${QUICK_START_BASE}/ensure/ensure_clusterctl.sh"
 }
 
 setup() {
@@ -54,6 +54,7 @@ scenario_2() {
     echo "Running Scenario 2: ..."
     # "clusterctl init --infrastructure metal3 --ipam=metal3" has already been run.
     # Define env variables
+    # shellcheck source=/dev/null
     source "${QUICK_START_BASE}/capm3-vars.sh"
 
     # Render and apply manifests
@@ -66,8 +67,17 @@ scenario_2() {
     fi
 
     # Get kubeconfig for the workload cluster and install CNI
-    clusterctl get kubeconfig test-cluster > ${QUICK_START_BASE}/test-cluster-kubeconfig.yaml
-    kubectl --kubeconfig=${QUICK_START_BASE}/test-cluster-kubeconfig.yaml apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.31.0/manifests/calico.yaml
+    clusterctl get kubeconfig test-cluster > "${QUICK_START_BASE}/test-cluster-kubeconfig.yaml"
+
+    # Wait for the target cluster API server to be ready before applying CNI
+    echo "Waiting for target cluster API server to be ready..."
+    until kubectl --kubeconfig="${QUICK_START_BASE}/test-cluster-kubeconfig.yaml" get nodes &>/dev/null; do
+        echo "Target cluster API server not ready yet, retrying in 2 seconds..."
+        sleep 2
+    done
+    echo "Target cluster API server is ready."
+
+    kubectl --kubeconfig="${QUICK_START_BASE}/test-cluster-kubeconfig.yaml" apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.31.0/manifests/calico.yaml
 
     # Wait for the control plane machine to be ready
     if ! kubectl wait --for=condition=Ready --timeout=600s machine --all; then
@@ -94,7 +104,7 @@ setup_disk_images_dir() {
     done
 
     if [ "$missing_files" -eq 1 ]; then
-        rm -r ${DISK_IMAGE_DIR} || true
+        rm -r "${DISK_IMAGE_DIR}" || true
         echo "Setting up disk images directory..."
         "${QUICK_START_BASE}/setup-image-server-dir.sh"
     else

@@ -24,7 +24,8 @@ verify_clusterctl_version()
     local clusterctl_version
     IFS=" " read -ra clusterctl_version <<< "$(clusterctl version)"
     # Extract version from output like "clusterctl version: &version.Info{Major:"1", Minor:"12", GitVersion:"v1.12.1",...}"
-    local version=$(echo "${clusterctl_version[@]}" | grep -oP 'GitVersion:"v\K[^"]+' | head -n1)
+    local version
+    version=$(echo "${clusterctl_version[@]}" | grep -oP 'GitVersion:"v\K[^"]+' | head -n1)
     version="v${version}"
     if [[ "${MINIMUM_CLUSTERCTL_VERSION}" != $(echo -e "${MINIMUM_CLUSTERCTL_VERSION}\n${version}" | sort -s -t. -k 1,1 -k 2,2n -k 3,3n | head -n1) ]]; then
         cat << EOF

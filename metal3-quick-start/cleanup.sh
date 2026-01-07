@@ -27,6 +27,7 @@ virsh -c qemu:///system net-undefine baremetal-e2e 2>/dev/null || true
 
 # Remove generated files
 rm -rf "${QUICK_START_BASE}/bmh-vm-01.xml" 2>/dev/null || true
+rm -rf "${QUICK_START_BASE}/test-cluster-kubeconfig.yaml" 2>/dev/null || true
 
 # Cleanup network interfaces and docker network
 sudo ip link del metalend 2>/dev/null || true

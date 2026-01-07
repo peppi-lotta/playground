@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-mkdir ${QUICK_START_BASE}/disk-images
+mkdir "${QUICK_START_BASE}/disk-images"
 
-pushd ${QUICK_START_BASE}/disk-images || exit
+pushd "${QUICK_START_BASE}/disk-images" || exit
 wget https://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64.img
 wget https://cloud-images.ubuntu.com/jammy/current/SHA256SUMS
 sha256sum --ignore-missing -c SHA256SUMS
