@@ -48,7 +48,7 @@ virt-install \
   --osinfo=ubuntu-lts-latest \
   --ram=4096 \
   --vcpus=2 \
-  --disk size=12 \
+  --disk size=8 \
   --boot uefi,hd,network \
   --import \
   --serial file,path="${SERIAL_LOG_PATH}" \
