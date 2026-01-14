@@ -23,7 +23,7 @@ MINIMUM_KUBECTL_VERSION=v1.34.1
 verify_kubectl_version()
 {
     # If kubectl is not available on the path, get it
-    if ! [ -x "$(command -v kubectl)" ]; then
+    if ! [[ -x "$(command -v kubectl)" ]]; then
         if [[ "${OSTYPE}" == "linux-gnu" ]]; then
             echo "kubectl not found, installing"
             curl -LO "https://dl.k8s.io/release/${MINIMUM_KUBECTL_VERSION}/bin/linux/amd64/kubectl"

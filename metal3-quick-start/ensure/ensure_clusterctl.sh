@@ -9,7 +9,7 @@ MINIMUM_CLUSTERCTL_VERSION=v1.12.1
 verify_clusterctl_version()
 {
     # If clusterctl is not available on the path, get it
-    if ! [ -x "$(command -v clusterctl)" ]; then
+    if ! [[ -x "$(command -v clusterctl)" ]]; then
         if [[ "${OSTYPE}" == "linux-gnu" ]]; then
             echo "clusterctl not found, installing"
             curl -Lo /tmp/clusterctl "https://github.com/kubernetes-sigs/cluster-api/releases/download/${MINIMUM_CLUSTERCTL_VERSION}/clusterctl-linux-amd64"

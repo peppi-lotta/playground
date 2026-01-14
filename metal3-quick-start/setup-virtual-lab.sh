@@ -41,6 +41,7 @@ docker run --name sushy-tools --rm --network host -d \
 
 # Generate a VM definition xml file and then define the VM
 # use --ram=8192 for Scenario 2
+SERIAL_LOG_PATH="/var/log/libvirt/qemu/bmh-vm-01-serial0.log"
 virt-install \
   --connect qemu:///system \
   --name bmh-vm-01 \

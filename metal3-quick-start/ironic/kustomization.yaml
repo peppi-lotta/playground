@@ -4,4 +4,3 @@ namespace: baremetal-operator-system
 resources:
 - ironic.yaml
 - certificate.yaml
-

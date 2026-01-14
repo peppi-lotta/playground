@@ -8,7 +8,7 @@ MINIMUM_GO_VERSION=go1.24.11
 verify_go_version()
 {
     # If go is not available on the path, get it
-    if ! [ -x "$(command -v go)" ]; then
+    if ! [[ -x "$(command -v go)" ]]; then
         if [[ "${OSTYPE}" == "linux-gnu" ]]; then
             echo 'go not found, installing'
             curl -sLo "/tmp/${MINIMUM_GO_VERSION}.linux-amd64.tar.gz" "https://go.dev/dl/${MINIMUM_GO_VERSION}.linux-amd64.tar.gz"

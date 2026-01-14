@@ -7,6 +7,7 @@
 #------------------------------------------------------------------------------
 set -eux
 
+# Default QUICK_START_BASE to the absolute path of this script's directory if not already set.
 export QUICK_START_BASE=${QUICK_START_BASE:="$(dirname -- "$(readlink -f "${BASH_SOURCE[0]}")")"}
 
 ensure_env() {
@@ -60,9 +61,9 @@ scenario_2() {
     # Render and apply manifests
     clusterctl generate cluster test-cluster --control-plane-machine-count 1 --worker-machine-count 0 | kubectl apply -f -
     
-    # Wait for bml-vm-01 to be provisioned
-    if ! kubectl wait --for=jsonpath='{.status.provisioning.state}'=provisioned --timeout=1800s bmh bml-vm-01; then
-        echo "ERROR: bml-vm-01 failed to reach 'provisioned' state within timeout."
+    # Wait for bmh-vm-01 to be provisioned
+    if ! kubectl wait --for=jsonpath='{.status.provisioning.state}'=provisioned --timeout=1800s bmh bmh-vm-01; then
+        echo "ERROR: bmh-vm-01 failed to reach 'provisioned' state within timeout."
         exit 1
     fi
 
@@ -97,13 +98,13 @@ setup_disk_images_dir() {
 
     missing_files=0
     for file in "${REQUIRED_FILES[@]}"; do
-        if [ ! -f "${DISK_IMAGE_DIR}/${file}" ]; then
+        if [[ ! -f "${DISK_IMAGE_DIR}/${file}" ]]; then
             missing_files=1
             break
         fi
     done
 
-    if [ "$missing_files" -eq 1 ]; then
+    if [[ "${missing_files}" -eq 1 ]]; then
         rm -r "${DISK_IMAGE_DIR}" || true
         echo "Setting up disk images directory..."
         "${QUICK_START_BASE}/setup-image-server-dir.sh"
