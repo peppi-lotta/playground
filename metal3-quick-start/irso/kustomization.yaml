@@ -5,25 +5,5 @@ namespace: ironic-standalone-operator-system
 resources:
 - https://github.com/metal3-io/ironic-standalone-operator/releases/latest/download/install.yaml
 
-configMapGenerator:
-- name: ironic-operator-config
-  literals:
-  - IPA_BASEURI=http://192.168.222.1
-
 patches:
-- target:
-    kind: Deployment
-    name: ironic-standalone-operator-controller-manager
-  patch: |-
-    apiVersion: apps/v1
-    kind: Deployment
-    metadata:
-      name: ironic-standalone-operator
-    spec:
-      template:
-        spec:
-          containers:
-            - name: manager
-              envFrom:
-                - configMapRef:
-                    name: ironic-operator-config
+- path: patch-configmap.yaml
