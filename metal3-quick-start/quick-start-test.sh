@@ -14,9 +14,6 @@ ensure_env() {
     sudo apt-get update
     sudo apt-get install -y libvirt-daemon-system qemu-kvm virt-manager libvirt-dev
 
-    echo "Ensuring go is installed and meets minimum version requirements..."
-    "${QUICK_START_BASE}/ensure/ensure_go.sh"
-
     echo "Ensuring kubectl is installed and meets minimum version requirements..."
     "${QUICK_START_BASE}/ensure/ensure_kubectl.sh"
 

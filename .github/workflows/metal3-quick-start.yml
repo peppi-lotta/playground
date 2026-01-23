@@ -39,7 +39,6 @@ jobs:
 
     - name: Run Quick Start Test
       # We need a new shell to pick up the new group. That is why we do the sudo -s -u $USER ...
-      # Remove the pre-installed go version. We install the exact version we need.
       run: |
         sudo usermod -a -G libvirt $USER
         sudo -s -u $USER --preserve-env bash ${{ github.workspace }}/metal3-quick-start/quick-start-test.sh
