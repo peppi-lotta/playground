@@ -51,3 +51,6 @@ Remove all resources:
 - Images directory: `metal3-quick-start/disk-images/`
 - Edit `capm3-vars.sh` for cluster configuration
 
+## Test PR
+
+This is to have and open PR and test
