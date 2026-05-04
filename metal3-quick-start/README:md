@@ -1,0 +1,48 @@
+# Metal3 Quick Start
+
+A virtual lab environment for testing Metal3 bare metal provisioning with Ironic and BMO (Baremetal Operator).
+
+## Prerequisites
+- Ubuntu/Debian Linux
+- libvirt, KVM, QEMU
+- Docker
+- kubectl
+
+## Quick Start
+
+**Run the complete test:**
+```bash
+cd metal3-quick-start
+./quick-start-test.sh
+```
+
+This will:
+1. Install dependencies (libvirt, KVM, kubectl)
+2. Download/prepare required disk images
+3. Create virtual baremetal network and VM
+4. Deploy Kind cluster with Ironic, BMO, and CAPM3
+5. Create a BareMetalHost and wait for it to become available
+
+## What Gets Deployed
+
+- **Kind cluster** - Management cluster
+- **Ironic** - Bare metal provisioning service
+- **BMO** - BareMetalHost controller
+- **CAPM3** - Cluster API provider for Metal3
+- **Sushy-tools** - Virtual BMC emulator
+- **Virtual BMH** - VM acting as bare metal host (4GB RAM, 2 vCPU, 25GB disk)
+- **DHCP/Image servers** - For network boot and image hosting
+
+## Cleanup
+
+Remove all resources:
+```bash
+./cleanup.sh
+```
+
+## Configuration
+
+- Network: `192.168.222.0/24` (baremetal-e2e)
+- BMC: `http://192.168.222.1:8000` (Sushy emulator)
+- Images directory: `metal3-quick-start/disk-images/`
+- Edit `capm3-vars.sh` for cluster configuration
