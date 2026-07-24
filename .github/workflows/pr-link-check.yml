@@ -1,0 +1,100 @@
+name: Check Links In Pull Requests
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize, ready_for_review]
+  workflow_call:
+    inputs:
+      upstream:
+        description: 'Upstream URL passed from the caller workflow'
+        required: true
+        type: string
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check-links-pr:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Clone repository
+      uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      with:
+        fetch-depth: 0
+        ref: ${{github.event.pull_request.head.ref}}
+        repository: ${{github.event.pull_request.head.repo.full_name}}
+        persist-credentials: false
+
+    - name: Add upstream remote
+      env:
+        UPSTREAM_INPUT: ${{ inputs.upstream }}
+      run: |
+        if [[ -n "${UPSTREAM_INPUT}" ]]; then
+          upstreamurl="${UPSTREAM_INPUT}"
+        else
+          upstreamurl="https://github.com/peppi-lotta/playground.git"
+        fi
+        git remote add upstream "${upstreamurl}"
+        git fetch upstream
+
+    - name: Checkout base branch
+      env:
+        BASE_REF: ${{ github.event.pull_request.base.ref }}
+      run: git checkout "upstream/${BASE_REF}"
+
+    - name: Get list of changed Markdown files (without deletions)
+      id: changed-files
+      env:
+        BASE_REF: ${{ github.event.pull_request.base.ref }}
+        HEAD_REF: ${{ github.head_ref }}
+      run: |
+        git diff --name-only --diff-filter=d "upstream/${BASE_REF}...${HEAD_REF}" -- "*.md" > changed-files.txt
+        cat changed-files.txt
+        if [[ -s "changed-files.txt" ]]; then
+          echo "Changed md files found"
+          echo "foundFiles=true" >> "${GITHUB_ENV}"
+        fi
+
+    - name: Switch to PR branch
+      env:
+        HEAD_REF: ${{ github.head_ref }}
+      run: git checkout "${HEAD_REF}"
+
+    - name: Check links in changed files
+      if: env.foundFiles == 'true'
+      uses: lycheeverse/lychee-action@8646ba30535128ac92d33dfc9133794bfdd9b411 # v2.8.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        failIfEmpty: false
+        args: |
+          --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Brave/131"
+          --root-dir "$(pwd)/"
+          --fallback-extensions "md"
+          --github-token "${{ secrets.GITHUB_TOKEN }}"
+          --max-concurrency 8
+          --max-retries 5
+          --retry-wait-time 10
+          --insecure
+          --exclude-all-private
+          --no-progress
+          $(cat changed-files.txt | tr '\n' ' ')
+
+    - name: Provide helpful failure message
+      if: failure()
+      run: |
+        echo "::error::Link check failed! Please review the broken links reported above."
+        echo ""
+        echo "If certain links are valid but fail due to:"
+        echo "- CAPTCHA challenges"
+        echo "- IP blocking"
+        echo "- Authentication requirements"
+        echo "- Rate limiting"
+        echo ""
+        echo "Consider adding them to .lycheeignore to bypass future checks."
+        echo "Format: Add one URL pattern per line"
+        exit 1
