@@ -41,31 +41,92 @@ jobs:
         git remote add upstream "${upstreamurl}"
         git fetch upstream
 
-    - name: Checkout base branch
-      env:
-        BASE_REF: ${{ github.event.pull_request.base.ref }}
-      run: git checkout "upstream/${BASE_REF}"
-
-    - name: Get list of changed Markdown files (without deletions)
-      id: changed-files
+    - name: Extract diff lines and build check files
+      id: extract-diff
       env:
         BASE_REF: ${{ github.event.pull_request.base.ref }}
         HEAD_REF: ${{ github.head_ref }}
       run: |
-        git diff --name-only --diff-filter=d "upstream/${BASE_REF}...${HEAD_REF}" -- "*.md" > changed-files.txt
-        cat changed-files.txt
-        if [[ -s "changed-files.txt" ]]; then
-          echo "Changed md files found"
-          echo "foundFiles=true" >> "${GITHUB_ENV}"
+        # Get the unified diff for markdown files (excluding deleted files)
+        changed_md_files=$(git diff --name-only --diff-filter=d "upstream/${BASE_REF}...${HEAD_REF}" -- "*.md")
+
+        if [[ -z "$changed_md_files" ]]; then
+          echo "No changed markdown files found."
+          echo "foundLinks=false" >> "${GITHUB_ENV}"
+          exit 0
         fi
 
-    - name: Switch to PR branch
-      env:
-        HEAD_REF: ${{ github.head_ref }}
-      run: git checkout "${HEAD_REF}"
+        # Parse the diff to extract only added lines, grouped by source file.
+        # This ensures we only check links that the PR author is responsible for.
+        git diff "upstream/${BASE_REF}...${HEAD_REF}" -- "*.md" > full_diff.txt
 
-    - name: Check links in changed files
-      if: env.foundFiles == 'true'
+        mkdir -p .diff-link-check
+
+        current_file=""
+        while IFS= read -r line; do
+          if [[ "$line" =~ ^\+\+\+\ b/(.*) ]]; then
+            current_file="${BASH_REMATCH[1]}"
+            continue
+          fi
+          [[ "$line" =~ ^--- ]] && continue
+          [[ "$line" =~ ^@@ ]] && continue
+          # Capture added lines (lines starting with + but not the +++ header)
+          if [[ "${line:0:1}" == "+" ]] && [[ -n "$current_file" ]]; then
+            content="${line:1}"
+            file_dir=$(dirname "$current_file")
+            mkdir -p ".diff-link-check/${file_dir}"
+            echo "$content" >> ".diff-link-check/${current_file}"
+          fi
+        done < full_diff.txt
+
+        # Check if any of the extracted lines contain links
+        has_links=false
+        for f in $(find .diff-link-check -type f -name "*.md" 2>/dev/null); do
+          # Check for URLs or markdown links
+          if grep -qP '(https?://|\[.*?\]\()' "$f" 2>/dev/null; then
+            has_links=true
+            break
+          fi
+        done
+
+        if [[ "$has_links" == "true" ]]; then
+          echo "foundLinks=true" >> "${GITHUB_ENV}"
+          echo "=== Files with diff lines to check ==="
+          find .diff-link-check -type f -name "*.md"
+          echo ""
+          echo "=== Diff line contents ==="
+          find .diff-link-check -type f -name "*.md" -exec echo "--- {} ---" \; -exec cat {} \;
+        else
+          echo "No links found in added/modified lines."
+          echo "foundLinks=false" >> "${GITHUB_ENV}"
+        fi
+
+    - name: Prepare check inputs with diff-only content
+      if: env.foundLinks == 'true'
+      run: |
+        # Overwrite the actual markdown files with only the diff content.
+        # This way lychee checks only diff lines but resolves relative paths
+        # against the real directory structure (other files remain intact).
+        find .diff-link-check -type f -name "*.md" | while read -r diff_file; do
+          # Strip the .diff-link-check/ prefix to get the real path
+          real_path="${diff_file#.diff-link-check/}"
+          cp "$diff_file" "$real_path"
+        done
+
+        # Create the file list for lychee (using real paths)
+        find .diff-link-check -type f -name "*.md" | sed 's|^\.diff-link-check/||' > diff-check-files.txt
+
+        echo "=== Files to check ==="
+        cat diff-check-files.txt
+        echo ""
+        echo "=== File contents (diff lines only) ==="
+        while read -r f; do
+          echo "--- $f ---"
+          cat "$f"
+        done < diff-check-files.txt
+
+    - name: Check links in diff lines
+      if: env.foundLinks == 'true'
       uses: lycheeverse/lychee-action@8646ba30535128ac92d33dfc9133794bfdd9b411 # v2.8.0
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -82,12 +143,16 @@ jobs:
           --insecure
           --exclude-all-private
           --no-progress
-          $(cat changed-files.txt | tr '\n' ' ')
+          $(cat diff-check-files.txt | tr '\n' ' ')
 
     - name: Provide helpful failure message
       if: failure()
       run: |
         echo "::error::Link check failed! Please review the broken links reported above."
+        echo ""
+        echo "Only links on lines you added or modified in this PR are checked."
+        echo "If a line you edited contains a pre-existing broken link,"
+        echo "please fix it as part of your change."
         echo ""
         echo "If certain links are valid but fail due to:"
         echo "- CAPTCHA challenges"

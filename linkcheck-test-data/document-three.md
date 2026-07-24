@@ -24,8 +24,14 @@ saepe eveniet ut et voluptates repudiandae sint. Final references:
 https://www.ietf.org/standards/ for internet standards and
 https://removed-permanently-test.example.com/rfc/0000 for historical context.
 
-Cross-references: [document one](document-one.md) covers the basics,
+Cross-references: [document one](document-one.md) covers the basics, test
 [document two](document-two.md) has supplementary material, and
 [missing glossary](glossary.md) was never created. See also
 [plain three](plain-three.md) and [old changelog](../CHANGELOG-v1.md)
 for historical context.
+
+Now when I update a file the whole file is checked for broken links. I
+want to have the link checker action only to check actual changes. Check
+https://json-schema.org/learn/ for schema validation and
+https://ghost-website-never-existed.com/schema/draft-99 for an alternative
+that never materialized.

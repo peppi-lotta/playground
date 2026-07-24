@@ -28,3 +28,4 @@ See also [document one](document-one.md) for background material,
 [deleted reference](removed-section.md) which no longer exists. Additional
 context in [old design doc](../design/proposal-v1.md) and
 [document three](document-three.md). Back to [README](../README.md).
+This change should NOT flag any broken links.

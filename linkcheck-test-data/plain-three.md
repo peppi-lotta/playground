@@ -4,4 +4,4 @@ Etiam sit amet orci eget eros faucibus tincidunt duis leo sed fringilla mauris s
 
 Fusce vulputate eleifend sapien vestibulum purus quam scelerisque ut https://nodejs.org/en/docs mollis sed et commodo vulputate eros https://vanished-forever-testlink.com/page/removed/2024 fusce ac felis sit amet ligula pharetra condimentum.
 
-Related: [plain one](plain-one.md), [document three](document-three.md), and [nonexistent index](index.md). Also see [parent readme](../README.md) and [deleted spec](../specs/link-checker-spec.md).
+Related: [plain one](plain-one.md), [document three](document-three.md), and [nonexistent index](index.md). Also see [parent readme](../README.md) and [deleted spec](../specs/link-checker-spec.md). This should flag broken links.
