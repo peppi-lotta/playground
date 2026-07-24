@@ -12,7 +12,7 @@ and https://www.wikipedia.org for general information.
 Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia
 deserunt mollit anim id est laborum. Additional resources can be found at
 https://github.com and https://fake-broken-link-000.example.net/docs/v2/intro
-which may be helpful.
+which may be helpful. Should not flag broken link with this change.
 
 Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. Nullam varius,
 turpis et commodo pharetra, est eros bibendum elit. Reference material at
